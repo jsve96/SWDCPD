@@ -7,22 +7,12 @@ def sanity_check(matrix):
     return True
 
 def project_and_calc_dist(X,Y,theta,p):
-    
     x_proj = np.dot(X, theta.T)
     y_proj = np.dot(Y, theta.T)
-    #N,d = X.shape
     qs = np.linspace(0,1,100)
     xp_quantiles = np.quantile(x_proj, qs, axis=0, method="inverted_cdf")
     yp_quantiles = np.quantile(y_proj, qs, axis=0, method="inverted_cdf")
-
-    
     dist_p = np.abs(xp_quantiles - yp_quantiles)**p
-
-    #mu = np.mean(dist_p)
-    #var  =np.var(dist_p)
-
-    #print(mu*mu/var)
-    #print(mu/var)
     return dist_p
 
 
@@ -96,7 +86,7 @@ def remove_important_features(X, Y, num_features_to_remove,N_Theta):
         betas.append(dist.mean(axis=0)/dist.var(axis=0,ddof=1))
         #print('alpha estimate: {}'.format(dist.mean(axis=0)**2/dist.var(axis=0,ddof=1)))
         # 1. Calculate feature contributions for the remaining features
-        contributions = get_feature_contribution(dist,THETA,0.99)
+        contributions = get_feature_contribution(dist,THETA,0.99,test=False)
         
         # 2. Find the feature with the highest contribution
         max_contrib_index = np.argmax(contributions)
