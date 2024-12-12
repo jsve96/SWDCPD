@@ -180,7 +180,7 @@ def get_explanations(test_dataloader,model):
 from itertools import product
 from torchmetrics.classification import BinaryAccuracy
 def main(args):
-
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     DIMENSIONS = [10,20]
     NB_DRIFTS = [1,3,7,9]
     N_RUNS = args.n_runs
@@ -208,11 +208,11 @@ def main(args):
             print('Data loaded')
             print('Start training')
             input_dim = d   # Number of features from the dataset
-            model_NN1 = ClassificationNet(input_dim)
+            model_NN1 = ClassificationNet(input_dim).to(device)
 
-            loss_fn = nn.BCELoss()
-            accuracy = BinaryAccuracy()
-            optimizer = optim.SGD(model_NN1.parameters(), lr=0.001,momentum=0.9)
+            loss_fn = nn.BCELoss().to(device)
+            accuracy = BinaryAccuracy().to(device)
+            optimizer = optim.Adam(model_NN1.parameters(),lr=0.001)#optim.SGD(model_NN1.parameters(), lr=0.001,momentum=0.9)
             model_NN1 = training(model_NN1,train_dataloader,val_dataloader,loss_fn,optimizer,accuracy) 
             print('Explanations')
             ig = IntegratedGradients(model_NN1)
@@ -227,8 +227,8 @@ def main(args):
 
             for batch_samples, batch_labels in test_dataloader:
                 # Ensure samples have the correct shape
-                batch_samples = batch_samples.requires_grad_()  # Enable gradients for attribution
-                baseline_dist = torch.zeros((batch_samples.shape[0],input_dim))
+                batch_samples = batch_samples.requires_grad_().to(device)  # Enable gradients for attribution
+                baseline_dist = torch.zeros((batch_samples.shape[0],input_dim)).to(device)
                 #baseline_dist = torch.abs(torch.tensor(Contributions[0],dtype=torch.float32).repeat(batch_samples.shape[0],1))
 
                 # Calculate the attributions for each sample in the batch
@@ -254,11 +254,11 @@ def main(args):
 
             all_attributions_gs = torch.cat(all_attributions_gs, dim=0)
             all_attributions_dl = torch.cat(all_attributions_dl, dim=0)
-            temp = torch.abs(all_attributions_ig[all_labels ==0 ].mean(axis=0)-all_attributions_ig[all_labels ==1 ].mean(axis=0)).detach().numpy()
+            temp = torch.abs(all_attributions_ig[all_labels ==0 ].mean(axis=0)-all_attributions_ig[all_labels ==1 ].mean(axis=0)).detach().cpu().numpy()
             IG_expl.append(temp)
-            temp = torch.abs(all_attributions_gs[all_labels ==0 ].mean(axis=0)-all_attributions_gs[all_labels ==1 ].mean(axis=0)).detach().numpy()
+            temp = torch.abs(all_attributions_gs[all_labels ==0 ].mean(axis=0)-all_attributions_gs[all_labels ==1 ].mean(axis=0)).detach().cpu().numpy()
             GS_expl.append(temp)
-            temp = torch.abs(all_attributions_dl[all_labels ==0 ].mean(axis=0)-all_attributions_dl[all_labels ==1 ].mean(axis=0)).detach().numpy()
+            temp = torch.abs(all_attributions_dl[all_labels ==0 ].mean(axis=0)-all_attributions_dl[all_labels ==1 ].mean(axis=0)).detach().cpu().numpy()
             DL_expl.append(temp) 
 
             Syn_samples = []
