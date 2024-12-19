@@ -30,21 +30,40 @@ class TimeseriesDataset(torch.utils.data.Dataset):
     
 
 
+#def project_and_calc_dist_torch(X, Y, theta, p,device='cpu'):
+   # X = X.to(device)
+   # Y = Y.to(device)
+   # theta = theta.to(device)
+   # x_proj = torch.matmul(X, theta.T)
+   # y_proj = torch.matmul(Y, theta.T)
+
+   # qs = torch.linspace(0, 1, 100, device=device)
+
+    # Compute quantiles for x_proj and y_proj
+   # xp_quantiles = torch.quantile(x_proj, qs, dim=0, interpolation="lower")
+   # yp_quantiles = torch.quantile(y_proj, qs, dim=0, interpolation="lower")
+
+    # Calculate the p-distance between quantiles
+   # dist_p = torch.abs(xp_quantiles - yp_quantiles)**p
+
+   # return dist_p
+
+
 def project_and_calc_dist_torch(X, Y, theta, p,device='cpu'):
-    X = X.to(device)
-    Y = Y.to(device)
-    theta = theta.to(device)
-    x_proj = torch.matmul(X, theta.T)
-    y_proj = torch.matmul(Y, theta.T)
+    X ,Y, theta= X.to(device),Y.to(device), theta.T.to(device)
+
+    x_proj = torch.matmul(X, theta)
+    y_proj = torch.matmul(Y, theta)
+
 
     qs = torch.linspace(0, 1, 100, device=device)
 
     # Compute quantiles for x_proj and y_proj
-    xp_quantiles = torch.quantile(x_proj, qs, dim=0, interpolation="lower")
-    yp_quantiles = torch.quantile(y_proj, qs, dim=0, interpolation="lower")
+    xp_quantiles = torch.quantile(x_proj, qs, dim=0, interpolation="linear")
+    yp_quantiles = torch.quantile(y_proj, qs, dim=0, interpolation="linear")
 
     # Calculate the p-distance between quantiles
-    dist_p = torch.abs(xp_quantiles - yp_quantiles)**p
+    dist_p = torch.pow(torch.abs(xp_quantiles - yp_quantiles),p)
 
     return dist_p
 
