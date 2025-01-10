@@ -136,3 +136,5 @@ def gamma_conf_interval(step, a, b, confidence=0.95):
     lower_bound = gamma.ppf((1 - confidence) / 2, alpha, scale=b)
     upper_bound = gamma.ppf(1 - (1 - confidence) / 2, alpha, scale=b)
     return lower_bound, upper_bound
+
+
