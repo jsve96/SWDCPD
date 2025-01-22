@@ -1,7 +1,9 @@
 import torch
 import numpy as np
 import pandas as pd
-from ChangeDetection.utilsCPD import *
+
+#from ChangeDetection.utilsCPD import *
+from utilsCPD import *
 from scipy.stats import norm,gamma
 from tqdm import tqdm
 from typing import List
@@ -19,12 +21,13 @@ def gamma_conf_interval(step,a, b, confidence=0.95):
 def CI_Calibration(max_history:int,alphas: List,betas:List,trend:float,significance: float =0.05):
     lookback = min(max_history,len(alphas))
     #interval = np.arange(1,lookback+1,1)
-    #w = (1/np.sqrt(interval)**0)/np.sum(1/np.sqrt(interval)**0)
+    #w = (1/np.sqrt(interval)**2)/np.sum(1/np.sqrt(interval)**2)
     a = np.mean(alphas[-lookback:])
     #a = np.average(alphas[-lookback:],weights=w)
     b = np.mean(betas[-lookback:])
     #b = np.average(betas[-lookback:],weights=w)
     return trend + gamma_conf_interval(1,a,1/b,1-significance)
+
 
 
 
@@ -47,7 +50,7 @@ class BaseDetector:
 
     def process_dataloader(self, n_theta:int = 500,p:int = 2,split: float = 0.5):
         theta = sample_theta_torch(self.data,n_theta,device=self.device)
-        dataloader = DataLoader(TimeseriesDataset(self.data.to_numpy(),self.window_length,split=split))
+        dataloader = DataLoader(TimeseriesDataset(self.data,self.window_length,split=split))
 
         for i, d in enumerate(tqdm(dataloader)):
             x_ref, x_cur = d[0].squeeze(0).to(self.device), d[1].squeeze(0).to(self.device)
