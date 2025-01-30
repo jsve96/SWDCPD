@@ -1,14 +1,16 @@
 library(ecp)
 library(hash)
 
+current_dir <- getwd()
 
-
+datasetpath <- paste(dirname(getwd()),"/datasets/has2023DataR/HASC_TS_",sep="")
+print(datasetpath)
 IDs = list(10,14,7,182,225,19,185,33,36,87,88,210,11,20,23,243,247,91,95,96,100,141,91,95,245)
 lol <- list()
 for (id in IDs){
   print(id)
   
-  string = paste(paste("C:/Users/Sven Jacob/Documents/Github/SWDCPD/Appendix/HASC_TS_",id,sep = ""),'.csv',sep="")
+  string = paste(paste(datasetpath,id,sep = ""),'.csv',sep="")
   X<-  read.csv(string)
   datapts <- X[,-1]
   print('Start')
@@ -32,9 +34,12 @@ library(jsonlite)
 write(toJSON(lol, pretty = TRUE), file = "HASC_EdiviseR199MINSIZE500.json")
 
 
+# Occupancy
+
+datapath <-  paste(dirname(getwd()),"/datasets/Occupancy/Occupancy.csv",sep="")
 
 
-X <- read.csv("C:/Users/Sven Jacob/Documents/Github/SWDCPD/ChangeDetection/Occupancy.csv")
+X <- read.csv(datapath)
 datapts <- X[,-1]
 
 print('Start')
@@ -44,12 +49,3 @@ end_time <- Sys.time()
 print(res$estimates)
 
 
-
-X <- read.csv("C:/Users/Sven Jacob/Documents/Github/SWDCPD/ChangeDetection/Syn1.csv")
-datapts <- X[,-1]
-
-print('Start')
-start_time <- Sys.time()
-res <- e.divisive(datapts,R=30,sig.lvl=0.05)
-end_time <- Sys.time()
-print(res$estimates)

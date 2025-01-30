@@ -1,16 +1,19 @@
 library(ocp)
 
-#X<-  read.csv("C:/Users/Sven Jacob/Documents/Github/SWDCPD/ChangeDetection/HASC_TS_33.csv")
-#datapts <- X[,-1]
 
 
 IDs = list(10,14,7,182,225,19,185,33,36,87,88,210,11,20,23,243,247,91,95,96,100,141,91,95,245)
 lol <- list()
+
+current_dir <- getwd()
+
+datasetpath <- paste(dirname(getwd()),"/datasets/has2023DataR/HASC_TS_",sep="")
+
 for (id in IDs){
   print(id)
   
-  string = paste(paste("C:/Users/Sven Jacob/Documents/Github/SWDCPD/Appendix/HASC_TS_",id,sep = ""),'.csv',sep="")
-  X<-  read.csv(string)
+  datasetpath <-  paste(paste(datasetpath,id,sep = ""),'.csv',sep="")
+  X<-  read.csv(datasetpath)
   datapts <- X[,-1]
   print('Start')
   start_time <- Sys.time()
@@ -38,9 +41,10 @@ write(toJSON(lol, pretty = TRUE), file = "HASC_BOCPDL100m0k10a01b10.json")
 
 
 ### Occupancy with normalization
+datapath <-  paste(dirname(getwd()),"/datasets/Occupancy/Occupancy.csv",sep="")
 
 
-X <- read.csv("C:/Users/Sven Jacob/Documents/Github/SWDCPD/ChangeDetection/Occupancy.csv")
+X <- read.csv(datasetpath)
 datapts <- X[,-1]
 
 z_score_normalized <- t(apply(datapts, 1, function(row) (row - mean(row)) / sd(row)))

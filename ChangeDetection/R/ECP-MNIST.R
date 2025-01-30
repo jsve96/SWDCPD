@@ -2,7 +2,15 @@ library(ecp)
 library(hash)
 library(jsonlite)
 
-data <- fromJSON("C:/Users/Sven Jacob/Documents/Github/SWDCPD/ChangeDetection/data.json")
+
+
+
+zip_file <- paste(dirname(getwd()),"/datasets/MNISTSeq.zip",sep="")
+
+json_file <- unzip(zip_file, exdir = tempdir())
+
+data <- fromJSON(json_file)
+
 
 lol <- list()
 id <- 0
