@@ -37,6 +37,32 @@ prefix: your path to conda...
 │   ├── utils.py                     # Utility functions explainability                  
 ```
 
+
+```
+📁 Appendix/
+│── 📓 Gamma-CI.ipynb - Notebook for Gamma confidence intervals
+│── 📓 SWD-Dist.ipynb - GoF for Gamma distribution
+
+📁 ChangeDetection/
+│── 📁 R/ - E-divisive and BOCPD R-scripts and results
+│── 📓 AblationStudy.ipynb - Notebook for ablation studies
+│── 📓 HASC.ipynb - CPD analysis on the HASC dataset
+│── 📓 KCPA.ipynb - Kernel-based CPD analysis
+│── 📓 MNIST.ipynb - CPD on MNIST dataset
+│── 📓 Occupancy.ipynb - CPD on occupancy dataset
+│── 📝 SWCPD.py - Main CPD algorithm using Sliced Wasserstein Distance
+│── 📓 Synthethic.ipynb - Synthetic data experiments
+│── 📓 UpperBoundExample.ipynb - Zoomed Plot for CPD method
+│── 📝 utilsCPD.py - Utility functions for CPD
+
+📁 Explainability/
+│── 📓 Adv-Examples-ART.ipynb - Adversarial examples
+│── 📓 MNIST.ipynb - Explainability for MNIST ViT
+│── 📄 run_synthethiy.txt - Results for synthetic experiments
+│── 📝 run_synthetic.py - Script to run synthetic explainability experiments
+│── 📓 Synthetic_Example.ipynb - SWCPD Explainability on synthetic data
+│── 📝 utils.py - Utility functions for explainability
+```
 ## Usage of R
 
 Make sure R is installed and install 
