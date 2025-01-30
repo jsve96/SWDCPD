@@ -3,10 +3,18 @@ import numpy as np
 import pandas as pd
 
 #from ChangeDetection.utilsCPD import *
-from utilsCPD import *
+#from utilsCPD import *
+try:
+    from ChangeDetection.utilsCPD import *  # First attempt
+except ImportError:
+    try:
+        from utilsCPD import *  # Fallback attempt
+    except ImportError as e:
+        print("Error: Unable to import the module 'utilsCPD'")
+        raise e  # Re-raise the exception if needed
 from scipy.stats import norm,gamma
 from tqdm import tqdm
-from typing import List
+from typing import List,Dict
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
@@ -47,11 +55,12 @@ class BaseDetector:
         self.first = True
         self.change_points = {'loc': [], 'value': []}
         self.cumsum = []
+        #self.exp_data = []
 
-    def process_dataloader(self, n_theta:int = 500,p:int = 2,split: float = 0.5):
-        theta = sample_theta_torch(self.data,n_theta,device=self.device)
+    def process_dataloader(self, n_theta:int = 500,p:int = 2,split: float = 0.5,seed=2025,explanations=False,exp_param: Dict={'num_features_to_remove':1,'max_parameter':True,"q":0.95},verbose=True):
+        theta = sample_theta_torch(self.data,n_theta,device=self.device,seed=seed)
         dataloader = DataLoader(TimeseriesDataset(self.data,self.window_length,split=split))
-
+        self.exp_data = []
         for i, d in enumerate(tqdm(dataloader)):
             x_ref, x_cur = d[0].squeeze(0).to(self.device), d[1].squeeze(0).to(self.device)
             loss = project_and_calc_dist_torch(x_ref, x_cur, theta, p=p).mean(axis=0).detach().cpu().numpy()
@@ -62,10 +71,14 @@ class BaseDetector:
             if i > 0:
                 if self.cusum >= self.upper[-1]:
                     if self.first:
-                        print(f"Change detected at: {i + self.window_length} \nInitiate new segment")
+                        if verbose:
+                            print(f"Change detected at: {i + self.window_length} \nInitiate new segment")
                         self.change_points['loc'].append(i + self.window_length)
                         self.change_points['value'].append(self.upper[-1] - self.cusum)
                         self.first = False
+                        if explanations:
+                            print(remove_important_features_syn(x_ref,x_cur,N_Theta=n_theta,p=p,device=self.device,**exp_param))
+                            self.exp_data.append(remove_important_features_syn(x_ref,x_cur,N_Theta=n_theta,p=p,device=self.device,**exp_param))
                 else:
                     if not self.first:
                         self.first = True
@@ -74,13 +87,16 @@ class BaseDetector:
             a_hat, b_hat = mom_estimates(loss)
             self.alphas.append(a_hat)
             self.betas.append(b_hat)
-            self.upper.append(CI_Calibration(self.max_lookback,self.alphas, self.betas, self.trend[-1]))
+            self.upper.append(CI_Calibration(self.max_lookback,self.alphas, self.betas, self.trend[-1],self.significance))
 
     def evaluate(self, ground_truth: List[int],tolerance: int):
-        f1 = f_measure({1: ground_truth}, self.change_points['loc'], tolerance)
+        f1,AUC = f_measure({1: ground_truth}, self.change_points['loc'], tolerance)
         coverage = covering({0: ground_truth}, self.change_points['loc'], self.data.shape[0])
+        
         print(f"F1 score: {f1}")
         print(f"Covering: {coverage}")
+        print(AUC)
+        return f1,coverage,AUC
 
     def plot(self,ground_truth):
         fig, ax = plt.subplots()

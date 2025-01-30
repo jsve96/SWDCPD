@@ -111,7 +111,7 @@ def project_and_calc_dist_torch(X, Y, theta, p,device='cpu'):
     return dist_p
 
 
-def sample_theta_torch(X, num_samples=10, device='cpu'):
+def sample_theta_torch(X, num_samples=10, device='cpu',seed=2025):
     """
     Samples random normalized vectors (theta) using PyTorch.
 
@@ -125,6 +125,7 @@ def sample_theta_torch(X, num_samples=10, device='cpu'):
     """
     _, d = X.shape
     # Generate random values
+    torch.manual_seed(seed)
     theta = torch.randn(num_samples, d, device=device)
     # Compute the norm along the last dimension
     theta_norm = torch.norm(theta, dim=1, keepdim=True)
@@ -232,6 +233,7 @@ def true_positives(T, X, margin=5):
         X.remove(xstar)
     return TP
 
+from sklearn.metrics import auc
 
 def f_measure(annotations, predictions, margin=5, alpha=0.5, return_PR=False):
     """Compute the F-measure based on human annotations.
@@ -273,7 +275,7 @@ def f_measure(annotations, predictions, margin=5, alpha=0.5, return_PR=False):
     F = P * R / (alpha * R + (1 - alpha) * P)
     if return_PR:
         return F, P, R
-    return F
+    return F, auc([0,R,1.0],[1.0,P,0])
 
 
 def overlap(A, B):
@@ -367,3 +369,74 @@ def covering(annotations, predictions, n_obs):
 
     Cs = [cover_single(Ak[k], pX) for k in Ak]
     return sum(Cs) / len(Cs)
+
+from sklearn.cluster import KMeans
+
+def get_feature_contribution(SL, theta,quantile_level,max=False,test=True):
+    N = SL.shape[0]
+    q_ind = int(np.floor(N*quantile_level))
+    if max:
+        return np.abs(theta[np.argsort(SL)[-1],:])
+    thetas = theta[np.argsort(SL)[q_ind:],:]
+    score = np.abs(thetas).mean(axis=0)
+    #test= True
+    if test:
+        kmeans= KMeans(n_clusters=2,random_state=0)
+        labels = kmeans.fit_predict(theta[np.argsort(SL)[q_ind:],:])
+        centers = kmeans.cluster_centers_
+        print(centers)
+        return centers[0]
+    return score
+
+
+def remove_important_features_syn(X, Y, num_features_to_remove,N_Theta,max_parameter=False,q=0.95,p=2,device='cpu'):
+    
+    """
+    Iteratively remove the most important features from X and Y
+    and calculate new contributions at each step.
+    
+    X, Y: Data matrices with d columns (features).
+    num_features_to_remove: Number of features to remove step by step.
+    
+    Returns:
+    - A list of dictionaries containing removed feature index and new contributions.
+    """
+    betas = []
+    removed_features = []  # To store removed feature indices and their contributions
+    SWDs = []
+    step = 1
+    Y_imp = Y.clone().to(device)
+    Contributions_out = []
+    #THETA = sample_theta(X,N_Theta)
+    for _ in range(num_features_to_remove):
+        THETA = sample_theta_torch(X,N_Theta,device=device)
+        dist = project_and_calc_dist_torch(X,Y_imp,THETA,p=p,device=device).mean(axis=0).detach().cpu().numpy()
+        SWDs.append(dist.mean(axis=0))
+        #print('removal: {}'.format(step))
+        print('SWD: {}'.format(dist.mean(axis=0)))
+        #print('beta estimate: {}'.format(dist.mean(axis=0)/dist.var(axis=0,ddof=1)))
+        betas.append(dist.mean(axis=0)/dist.var(axis=0,ddof=1))
+        #print('alpha estimate: {}'.format(dist.mean(axis=0)**2/dist.var(axis=0,ddof=1)))
+        # 1. Calculate feature contributions for the remaining features
+        contributions = get_feature_contribution(dist,THETA.detach().cpu().numpy(),q,max=max_parameter)
+        
+        # 2. Find the feature with the highest contribution
+        max_contrib_index = np.argmax(contributions)
+        max_contrib_value = contributions[max_contrib_index]
+        #print(contributions)
+        # 3. Store the feature removal information
+        removed_features.append({
+            'removed_feature': max_contrib_index,
+            'contribution_value': max_contrib_value,
+            'beta': betas[-1],
+            'alpha': dist.mean(axis=0)**2/dist.var(axis=0,ddof=1) 
+        })
+        # 4. Replace the feature from Y with mean value of X
+
+        Y_imp[:,max_contrib_index] = X[:,max_contrib_index]#torch.ones(Y.shape[0]).to(device)*X[:,max_contrib_index].mean()
+        Contributions_out.append(contributions)
+        step+=1
+    #plt.plot(range(len(betas)),betas,marker='.')
+    return removed_features,Contributions_out
+
+
