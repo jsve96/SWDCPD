@@ -1,6 +1,6 @@
 # Code for Experiments
 
-## Installation
+## Installation (Windows)
 Create a new conda environment as follows:
 ```
 conda env create --name your_name --file=environment.yml
@@ -9,7 +9,17 @@ This should install all dependencies to your conda environment path on your mach
 ```
 prefix: your path to conda...
 ```
+## Installation (Linux)
+Tested on Linux Mint 22 kernel 6.8.0-45-generic with conda 24.11.2
 
+Create a new conda environment as follows:
+```
+conda env create --name your_name --file=linux-environment.yml
+```
+This should install all dependencies to your conda environment path on your machine. If not then add
+```
+prefix: your path to conda...
+```
 ## Structure
 ```
 📁 Appendix/
