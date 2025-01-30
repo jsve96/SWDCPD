@@ -12,33 +12,6 @@ prefix: your path to conda...
 
 ## Structure
 ```
-├── Appendix/                     
-│   ├── Gamma-CI.ipynb              # Notebook analyzing Gamma confidence intervals
-│   ├── SWD-Dist.ipynb              # Notebook on Sliced Wasserstein Distance distribution
-
-├── ChangeDetection/      
-    ├── R/                           # E-divisive and BOCPD R-scripts and results        
-│   ├── AblationStudy.ipynb          # Notebook for ablation studies
-│   ├── HASC.ipynb                   # CPD analysis on the HASC dataset
-│   ├── KCPA.ipynb                   # Kernel-based CPD analysis
-│   ├── MNIST.ipynb                  # CPD on MNIST dataset
-│   ├── Occupancy.ipynb              # CPD on occupancy dataset
-│   ├── SWCPD.py                     # Main CPD algorithm using Sliced Wasserstein Distance
-│   ├── Synthethic.ipynb             # Synthetic data experiments
-│   ├── UpperBoundExample.ipynb      # Example illustrating theoretical upper bounds
-│   ├── utilsCPD.py                  # Utility functions for CPD
-
-├── Explainability/                 
-│   ├── Adv-Examples-ART.ipynb       # Adversarial examples
-│   ├── MNIST.ipynb                  # Explainability for MNIST ViT
-│   ├── run_synthethiy.txt           # Results for synthetic experiments
-│   ├── run_synthetic.py             # Script to run synthetic explainability experiments
-│   ├── Synthetic_Example.ipynb      # Notebook for SWCPD Explainability on snythetic data
-│   ├── utils.py                     # Utility functions explainability                  
-```
-
-
-```
 📁 Appendix/
 │── 📓 Gamma-CI.ipynb - Notebook for Gamma confidence intervals
 │── 📓 SWD-Dist.ipynb - GoF for Gamma distribution
