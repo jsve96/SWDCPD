@@ -95,4 +95,4 @@ detector.evaluate(ground_truth=GroundTruth,tolerance=20)
 
 - split (float, default=0.5) – Ratio for splitting reference and current data windows
 
-- ground_truth (list) - List of true changepoints
+- ground_truth (list) - List of true changepoints.
