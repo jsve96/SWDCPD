@@ -86,3 +86,4 @@ end_time <- Sys.time()
 print(end_time - start_time)
 print(fit$changepoint_lists$maxCPs)
 
+write(toJSON(fit$changepoint_lists$maxCPs, pretty = TRUE), file = "OccupancyBOCPD.json")
