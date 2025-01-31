@@ -85,7 +85,7 @@ detector = SWDCP(data, window_length=50, max_history=20, significance=0.05, use_
 ### Running detector
 ```python
 detector.process_dataloader(n_theta=500, p=2, split=0.5, explanations=False, verbose=True)
-detector.evaluate(GroundTruth,tolerance=20)
+detector.evaluate(ground_truth=GroundTruth,tolerance=20)
 ```
 🔹 Parameters:
 
@@ -94,3 +94,5 @@ detector.evaluate(GroundTruth,tolerance=20)
 - p (int, default=2) – Wasserstein order
 
 - split (float, default=0.5) – Ratio for splitting reference and current data windows
+
+- ground_truth (list) - List of true changepoints
