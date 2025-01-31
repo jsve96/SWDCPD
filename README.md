@@ -1,11 +1,15 @@
 # Code for Experiments
 
 ## Installation (Windows)
+Tested on Windows 11 with conda 24.11.2
+
 Create a new conda environment as follows:
 ```
 conda env create --name your_name --file=environment.yml
 ```
-This should install all dependencies to your conda environment path on your machine. If not then add
+This should install all dependencies to your conda environment path on your machine. 
+
+If not then add to environment.yml
 ```
 prefix: your path to conda...
 ```
@@ -16,7 +20,9 @@ Create a new conda environment as follows:
 ```
 conda env create --name your_name --file=linux-environment.yml
 ```
-This should install all dependencies to your conda environment path on your machine. If not then add
+This should install all dependencies to your conda environment path on your machine. 
+
+If not then add to linux-environment.yml
 ```
 prefix: your path to conda...
 ```
@@ -27,6 +33,7 @@ prefix: your path to conda...
 │── 📓 SWD-Dist.ipynb - GoF for Gamma distribution
 
 📁 ChangeDetection/
+│── 📁 datasets/ - Datasets used (HAR,MNISTseq,Occupancy)
 │── 📁 R/ - E-divisive and BOCPD R-scripts and results
 │── 📓 AblationStudy.ipynb - Notebook for ablation studies
 │── 📓 HASC.ipynb - CPD analysis on the HASC dataset
@@ -49,8 +56,41 @@ prefix: your path to conda...
 ## Usage of R
 
 Make sure R is installed and install 
-```
+```R
 library(ocp)
 library(ecp)
 library(jsonlite)
 ```
+
+## Detection with SWDCP
+### Initializing the Detector
+
+To initialize the detector, provide the sequential data, window length, and optional parameters:
+```python
+from SWCPD import BaseDetector as SWDCP
+detector = SWDCP(data, window_length=50, max_history=20, significance=0.05, use_cuda=True)
+```
+🔹 Parameters:
+
+- data (np.array or torch.Tensor) : input data (obs $\times$ dim)
+
+- window_length (int) : Size of sliding window
+
+- max_history (int, default=20) – Number of past MoM estimates considered for propagating distribution
+
+- significance (float, default=0.05) – Statistical significance level for detecting changes
+
+- use_cuda (bool, default=True) – use GPU
+
+### Running detector
+```python
+detector.process_dataloader(n_theta=500, p=2, split=0.5, explanations=False, verbose=True)
+detector.evaluate(GroundTruth,tolerance=20)
+```
+🔹 Parameters:
+
+- n_theta (int, default=500) – Number of Monte Carlo Samples
+
+- p (int, default=2) – Wasserstein order
+
+- split (float, default=0.5) – Ratio for splitting reference and current data windows
