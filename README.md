@@ -80,7 +80,7 @@ detector = SWDCP(data, window_length=50, max_history=20, significance=0.05, use_
 
 - significance (float, default=0.05) – Statistical significance level for detecting changes
 
-- use_cuda (bool, default=True) – use GPU
+- use_cuda (bool, default=True) – Use GPU
 
 ### Running detector
 ```python
