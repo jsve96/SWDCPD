@@ -35,11 +35,15 @@ prefix: your path to conda...
 📁 ChangeDetection/
 │── 📁 datasets/ - Datasets used (HAR,MNISTseq,Occupancy)
 │── 📁 R/ - E-divisive and BOCPD R-scripts and results
+│── 📁 OT_CPD/ - Code for OT-CPD method
 │── 📓 AblationStudy.ipynb - Notebook for ablation studies
+│── 📓 GridSearch.ipynb - Notebook for Grid Search results
 │── 📓 HASC.ipynb - CPD analysis on the HASC dataset
 │── 📓 KCPA.ipynb - Kernel-based CPD analysis
 │── 📓 MNIST.ipynb - CPD on MNIST dataset
 │── 📓 Occupancy.ipynb - CPD on occupancy dataset
+│── 📓 OT-CPD.ipynb - OT-CPD analysis
+│── 📓 Plots.ipynb - Sensitivity Plots
 │── 📝 SWCPD.py - Main CPD algorithm using Sliced Wasserstein Distance
 │── 📓 Synthethic.ipynb - Synthetic data experiments
 │── 📓 UpperBoundExample.ipynb - Zoomed Plot for CPD method
