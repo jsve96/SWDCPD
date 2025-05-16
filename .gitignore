@@ -2,3 +2,6 @@ Explainability/datasets
 ChangeDetection/datasets/MNIST
 Appendix/datasets
 ChangeDetection/dummy.ipynb
+ChangeDetection/*pdf
+ChangeDetection/*png
+*json

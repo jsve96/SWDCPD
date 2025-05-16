@@ -235,6 +235,70 @@ def true_positives(T, X, margin=5):
 
 from sklearn.metrics import auc
 
+# def f_measure(annotations, predictions, margin=5, alpha=0.5, return_PR=False):
+#     """Compute the F-measure based on human annotations.
+
+#     annotations : dict from user_id to iterable of CP locations
+#     predictions : iterable of predicted CP locations
+#     alpha : value for the F-measure, alpha=0.5 gives the F1-measure
+#     return_PR : whether to return precision and recall too
+
+#     Remember that all CP locations are 0-based!
+
+#     >>> f_measure({1: [10, 20], 2: [11, 20], 3: [10], 4: [0, 5]}, [10, 20])
+#     1.0
+#     >>> f_measure({1: [], 2: [10], 3: [50]}, [10])
+#     0.9090909090909091
+#     >>> f_measure({1: [], 2: [10], 3: [50]}, [])
+#     0.8
+#     """
+#     # ensure 0 is in all the sets
+#     Tks = {k + 1: set(annotations[uid]) for k, uid in enumerate(annotations)}
+#     for Tk in Tks.values():
+#         Tk.add(0)
+
+#     X = set(predictions)
+#     X.add(0)
+
+#     Tstar = set()
+#     for Tk in Tks.values():
+#         for tau in Tk:
+#             Tstar.add(tau)
+
+#     K = len(Tks)
+
+#     P = len(true_positives(Tstar, X, margin=margin)) / len(X)
+
+#     TPk = {k: true_positives(Tks[k], X, margin=margin) for k in Tks}
+#     R = 1 / K * sum(len(TPk[k]) / len(Tks[k]) for k in Tks)
+
+#     F = P * R / (alpha * R + (1 - alpha) * P)
+#     if return_PR:
+#         return F, P, R
+#     return F, auc([0,R,1.0],[1.0,P,0])
+def detection_delay(gt, pred):
+    """Compute detection delay for each predicted CP.
+    
+    Args:
+        T (set): Ground truth CPs (annotations).
+        X (set): Predicted CPs.
+
+    Returns:
+        delays (dict): {prediction: detection delay}
+        avg_delay (float): Mean detection delay
+    """
+    T = set(gt)
+    X = set(pred)
+    delays = {}
+    for x in X:
+        if T:  # Ensure T is not empty
+            closest_t = min(T, key=lambda t: abs(x - t))  # Find closest annotation
+            delays[x] = abs(x - closest_t)  # Compute delay
+    
+    avg_delay = np.mean(list(delays.values())) if delays else 0  # Mean delay
+    return delays, avg_delay
+
+
 def f_measure(annotations, predictions, margin=5, alpha=0.5, return_PR=False):
     """Compute the F-measure based on human annotations.
 
@@ -272,11 +336,52 @@ def f_measure(annotations, predictions, margin=5, alpha=0.5, return_PR=False):
     TPk = {k: true_positives(Tks[k], X, margin=margin) for k in Tks}
     R = 1 / K * sum(len(TPk[k]) / len(Tks[k]) for k in Tks)
 
+    TP = false_positives(Tstar,X,margin=margin)
     F = P * R / (alpha * R + (1 - alpha) * P)
     if return_PR:
         return F, P, R
-    return F, auc([0,R,1.0],[1.0,P,0])
+    return F, auc([0,R,1.0],[1.0,P,0]),len(false_positives(Tstar,X,margin=margin))
 
+
+
+def true_positives(T, X, margin=5):
+    """Compute true positives without double counting
+
+    >>> true_positives({1, 10, 20, 23}, {3, 8, 20})
+    {1, 10, 20}
+    >>> true_positives({1, 10, 20, 23}, {1, 3, 8, 20})
+    {1, 10, 20}
+    >>> true_positives({1, 10, 20, 23}, {1, 3, 5, 8, 20})
+    {1, 10, 20}
+    >>> true_positives(set(), {1, 2, 3})
+    set()
+    >>> true_positives({1, 2, 3}, set())
+    set()
+    """
+    # make a copy so we don't affect the caller
+    X = set(list(X))
+    TP = set()
+    for tau in T:
+        close = [(abs(tau - x), x) for x in X if abs(tau - x) <= margin]
+        close.sort()
+        if not close:
+            continue
+        dist, xstar = close[0]
+        TP.add(tau)
+        X.remove(xstar)
+    return TP
+
+# def false_positives(T, X, margin=5):
+#     """Returns a set of false positives (incorrectly predicted CPs)."""
+#     TP = true_positives(T, X, margin)
+#     return X - TP  # FP = All Predictions - True Positives
+def false_positives(T, X, margin=5):
+    """Compute false positives (predictions that don't match any true CPs within margin)."""
+    FP = set()
+    for x in X:
+        if not any(abs(x - t) <= margin for t in T):  # No match within margin
+            FP.add(x)
+    return FP
 
 def overlap(A, B):
     """Return the overlap (i.e. Jaccard index) of two sets

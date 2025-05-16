@@ -12,9 +12,9 @@ data <- fromJSON(json_file)
 lol <- list()
 id <- 0
 for (subdata in data){
+  results <- list()
   datapts<-subdata$data
   print("CPS")
-  print(subdata$target)
   start_time <- Sys.time()
   fit <- onlineCPD(
     datapts = datapts,                     # Your MNIST-like data (matrix with 784 columns)
@@ -47,8 +47,12 @@ for (subdata in data){
   print(fit$changepoint_lists$maxCPs)
   id_c <- as.character(id)
   print(id_c)
-  lol[[id_c]] <- fit$changepoint_lists$maxCPs
+  results[['CPs']] <- fit$changepoint_lists$maxCPs
+  results[['RunTime']] <- as.numeric(end_time-start_time)
+  lol[[id_c]] <- results#fit$changepoint_lists$maxCPs
   id <- id+1
 }
 
-write(toJSON(lol, pretty = TRUE), file = "MNIST_BOCPD.json")
+lol
+
+write(toJSON(lol, pretty = TRUE), file = "MNIST_BOCPD_new.json")

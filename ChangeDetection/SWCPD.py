@@ -90,13 +90,13 @@ class BaseDetector:
             self.upper.append(CI_Calibration(self.max_lookback,self.alphas, self.betas, self.trend[-1],self.significance))
 
     def evaluate(self, ground_truth: List[int],tolerance: int):
-        f1,AUC = f_measure({1: ground_truth}, self.change_points['loc'], tolerance)
+        f1,AUC,fp = f_measure({1: ground_truth}, self.change_points['loc'], tolerance)
         coverage = covering({0: ground_truth}, self.change_points['loc'], self.data.shape[0])
-        
+        dd = detection_delay(ground_truth,self.change_points['loc'])
         print(f"F1 score: {f1}")
         print(f"Covering: {coverage}")
         print(AUC)
-        return f1,coverage,AUC
+        return f1,coverage,AUC,fp,dd
 
     def plot(self,ground_truth):
         fig, ax = plt.subplots()

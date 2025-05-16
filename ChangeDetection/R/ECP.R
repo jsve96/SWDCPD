@@ -48,4 +48,87 @@ res <- e.divisive(datapts,R=30,sig.lvl=0.05,min.size = 400)
 end_time <- Sys.time()
 print(res$estimates)
 
+#Syn
+#####################
+#0.1
 
+lol <- list()
+names <- list()
+for(i in c(2020,2021,2022,2023,2024)){
+  names <- append(names,paste('0.1',i,sep="-"))
+}
+
+c = 0
+for (name in names){
+  path = paste(paste("C:/Users/Sven Jacob/Downloads",name,sep="/"),'json',sep=".")
+  print(path)
+  X <- fromJSON(path)
+  
+  datapts <- array(unlist(X['d']),dim=c(1500,20))
+
+  print('Start')
+  start_time <- Sys.time()
+  res <- e.divisive(datapts,R=50,sig.lvl=0.05,min.size = 30)
+  end_time <- Sys.time()
+  print(res$estimates)
+  lol[[as.character(c)]] <- res$estimates
+  c <- c+1
+}
+lol
+write(toJSON(lol, pretty = TRUE), file = "Synthetic01ECP.json")
+
+
+#########################
+#0.5
+lol <- list()
+names <- list()
+for(i in c(2020,2021,2022,2023,2024)){
+  names <- append(names,paste('0.5',i,sep="-"))
+}
+
+c = 0
+for (name in names){
+  path = paste(paste("C:/Users/Sven Jacob/Downloads",name,sep="/"),'json',sep=".")
+  print(path)
+  X <- fromJSON(path)
+  
+  datapts <- array(unlist(X['d']),dim=c(1500,20))
+  
+  print('Start')
+  start_time <- Sys.time()
+  res <- e.divisive(datapts,R=50,sig.lvl=0.05,min.size = 30)
+  end_time <- Sys.time()
+  print(res$estimates)
+  lol[[as.character(c)]] <- res$estimates
+  c <- c+1
+}
+lol
+write(toJSON(lol, pretty = TRUE), file = "Synthetic05ECP.json")
+
+
+###########################
+#1.0
+lol <- list()
+names <- list()
+for(i in c(2020,2021,2022,2023,2024)){
+  names <- append(names,paste('1',i,sep="-"))
+}
+
+c = 0
+for (name in names){
+  path = paste(paste("C:/Users/Sven Jacob/Downloads",name,sep="/"),'json',sep=".")
+  print(path)
+  X <- fromJSON(path)
+  
+  datapts <- array(unlist(X['d']),dim=c(1500,20))
+  
+  print('Start')
+  start_time <- Sys.time()
+  res <- e.divisive(datapts,R=50,sig.lvl=0.05,min.size = 30)
+  end_time <- Sys.time()
+  print(res$estimates)
+  lol[[as.character(c)]] <- res$estimates
+  c <- c+1
+}
+lol
+write(toJSON(lol, pretty = TRUE), file = "Synthetic1ECP.json")
